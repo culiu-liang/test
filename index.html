@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title> Vibe Coding项目 展示 - 醋溜科技</title>
+    <style>
+        :root {
+            --primary-color: #06b6d4;
+            --accent-color: #f97316;
+            --bg-dark: #0f172a;
+            --bg-card: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(249, 115, 22, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .main-header {
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-img {
+            height: 50px;
+            width: auto;
+        }
+
+        .page-title-container {
+            flex: 1;
+            text-align: center;
+            padding-right: 100px;
+        }
+
+        /* ===== 标题特效：多段白青交替流动 + 静态发光 ===== */
+        h1 {
+            font-size: 2.5em;
+            font-weight: 800;
+            background: linear-gradient(
+                90deg,
+                var(--primary-color)  0%,
+                #fff 25%,
+                var(--primary-color) 50%,
+                #fff 75%,
+                var(--primary-color) 100%
+            );
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            /* 静态发光：双层阴影，无动画，性能友好 */
+            text-shadow: 
+                0 0 25px rgba(6, 182, 212, 0.7),
+                0 0 50px rgba(6, 182, 212, 0.35);
+            letter-spacing: 1px;
+            animation: color-flow-short 4s linear infinite;
+        }
+
+        @keyframes color-flow-short {
+            0% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        /* ===== 特效结束 ===== */
+
+        /* 副标题增强发光 */
+        .subtitle {
+            color: var(--text-sub);
+            font-size: 1em;
+            margin-top: 5px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+            animation: subtitle-glow-intense 2.5s ease-in-out infinite alternate;
+            position: relative;
+        }
+
+        .subtitle::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), var(--accent-color), transparent);
+            animation: underline-glow 2s ease-in-out infinite;
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        @keyframes subtitle-glow-intense {
+            0% { text-shadow: 0 0 15px rgba(6, 182, 212, 0.5), 0 0 30px rgba(6, 182, 212, 0.3); }
+            100% { text-shadow: 0 0 25px rgba(6, 182, 212, 0.9), 0 0 50px rgba(6, 182, 212, 0.6), 0 0 80px rgba(249, 115, 22, 0.4); }
+        }
+
+        @keyframes underline-glow {
+            0%, 100% { opacity: 0.6; width: 60%; }
+            50% { opacity: 1; width: 100%; box-shadow: 0 0 20px var(--primary-color), 0 0 40px var(--accent-color); }
+        }
+        /* ===== 特效结束 ===== */
+
+        .projects-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 40px;
+            gap: 30px;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) var(--bg-dark);
+            position: relative;
+            z-index: 1;
+        }
+
+        .projects-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+        .projects-wrapper::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+        }
+        .projects-wrapper::-webkit-scrollbar-thumb {
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 4px;
+        }
+
+        .project-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 25px;
+            min-width: 320px;
+            max-width: 350px;
+            flex: 1;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        }
+
+        .project-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(6, 182, 212, 0.5);
+            box-shadow: 0 20px 60px rgba(6, 182, 212, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .project-card:hover::after {
+            opacity: 1;
+        }
+
+        .project-preview {
+            width: 100%;
+            height: 180px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .project-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .project-card:hover .project-preview img {
+            transform: scale(1.05);
+        }
+
+        .project-title {
+            color: var(--text-main);
+            font-size: 1.4em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .project-description {
+            color: var(--text-sub);
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .project-buttons {
+            display: flex;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.8), rgba(6, 182, 212, 0.6));
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 1), rgba(6, 182, 212, 0.8));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-main);
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.4);
+            transform: translateY(-2px);
+        }
+
+        .fullscreen-viewer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .viewer-header {
+            height: 70px;
+            padding: 0 30px;
+            background: rgba(15, 23, 42, 0.95);
+            border-bottom: 1px solid var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .viewer-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .viewer-left .logo-img {
+            height: 40px;
+        }
+
+        .viewer-right {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .viewer-project-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--primary-color);
+            border-right: 1px solid rgba(255,255,255,0.2);
+            padding-right: 25px;
+            margin-right: 10px;
+        }
+
+        .viewer-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--primary-color);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            background: rgba(6, 182, 212, 0.1);
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-refresh {
+            color: var(--primary-color);
+        }
+
+        .btn-refresh:hover {
+            background: rgba(6, 182, 212, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-back {
+            background: linear-gradient(135deg, var(--accent-color), #ea580c);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .btn-back:hover {
+            background: linear-gradient(135deg, #ea580c, #c2410c);
+            border-color: #ea580c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+        }
+
+        .viewer-frame {
+            flex: 1;
+            border: none;
+            width: 100%;
+            background: #fff;
+        }
+
+        @media (max-width: 1200px) {
+            .project-card {
+                min-width: 280px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .viewer-project-name { display: none; }
+            .viewer-header { padding: 0 15px; }
+            .viewer-right { gap: 10px; }
+            .viewer-btn span { display: none; }
+            .viewer-btn { padding: 8px 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <img src="logo.png" alt="醋溜科技 Logo" class="logo-img">
+        <div class="page-title-container">
+            <h1> VIBE CODING 项目体验</h1>
+            <div class="subtitle">探索AI与编程的无限可能</div>
+        </div>
+    </header>
+
+    <div class="projects-wrapper">
+        
+        <div class="project-card" onclick="openInViewer('plant', 'https://plant-recognition-obwe.onrender.com/', '🌿 植物图像识别')">
+            <div class="project-preview">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Crect fill='%23f0f9f0' width='800' height='600'/%3E%3Ccircle cx='400' cy='250' r='150' fill='%2390EE90' opacity='0.3'/%3E%3Ctext x='400' y='320' font-family='Arial' font-size='80' text-anchor='middle' fill='%23228B22'%3E🌱%3C/text%3E%3Ctext x='400' y='450' font-family='Arial' font-size='24' text-anchor='middle' fill='%232d5016'%3E拍照识植物%3C/text%3E%3C/svg%3E" alt="植物识别">
+            </div>
+            <h3 class="project-title">🌿 植物图像识别</h3>
+            <p class="project-description">路边看到不认识的植物？拍张照，AI立马告诉你它叫什么名字！支持拍照、拖拽、链接识别，植物小达人就是你！</p>
+            <div class="project-buttons">
+                <button class="btn btn-primary" onclick="event.stopPropagation(); openInViewer('plant', 'https://plant-recognition-obwe.onrender.com/', '🌿 植物图像识别')">体验项目</button>
+                <a href="https://plant-recognition-obwe.onrender.com/" target="_blank" class="btn btn-secondary" onclick="event.stopPropagation()">新窗口</a>
+            </div>
+        </div>
+
+        <div class="project-card" onclick="openInViewer('maze', 'maze.html', '🌀 AI迷宫大挑战')">
+            <div class="project-preview">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Crect fill='%230f172a' width='800' height='600'/%3E%3Crect x='50' y='50' width='700' height='500' fill='none' stroke='%23334155' stroke-width='3'/%3E%3Cpath d='M 100 100 L 700 500' stroke='%23f97316' stroke-width='5' fill='none' stroke-dasharray='10'/%3E%3Ccircle cx='100' cy='100' r='15' fill='%23ef4444'/%3E%3Ccircle cx='700' cy='500' r='15' fill='%2322c55e'/%3E%3Ctext x='400' y='320' font-family='Arial' font-size='40' text-anchor='middle' fill='white' opacity='0.2'%3EVS AI%3C/text%3E%3C/svg%3E" alt="走迷宫">
+            </div>
+            <h3 class="project-title">🌀 AI迷宫大挑战</h3>
+            <p class="project-description">敢来和AI比试谁更快走出迷宫吗？你走左边，AI走右边，看谁先到达终点！手速和脑力的双重考验，等你来战！</p>
+            <div class="project-buttons">
+                <button class="btn btn-primary" onclick="event.stopPropagation(); openInViewer('maze', 'maze.html', '🌀 AI迷宫大挑战')">体验项目</button>
+                <a href="maze.html" target="_blank" class="btn btn-secondary" onclick="event.stopPropagation()">新窗口</a>
+            </div>
+        </div>
+
+        <div class="project-card" onclick="openInViewer('tetris', 'Tetris.html', '🎮 手势俄罗斯方块')">
+            <div class="project-preview">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Crect fill='%23000000' width='800' height='600'/%3E%3Crect x='300' y='100' width='200' height='400' fill='none' stroke='%23333' stroke-width='2'/%3E%3Crect x='350' y='120' width='40' height='40' fill='%23eab308'/%3E%3Crect x='390' y='120' width='40' height='40' fill='%23eab308'/%3E%3Crect x='350' y='160' width='40' height='40' fill='%23eab308'/%3E%3Crect x='390' y='160' width='40' height='40' fill='%23eab308'/%3E%3Ctext x='400' y='550' font-family='Arial' font-size='24' text-anchor='middle' fill='%2306b6d4'%3EGesture Control%3C/text%3E%3C/svg%3E" alt="俄罗斯方块">
+            </div>
+            <h3 class="project-title">🎮 手势俄罗斯方块</h3>
+            <p class="project-description">不用键盘鼠标，用手势就能玩俄罗斯方块！挥手移动，握拳旋转，科技感满满！来体验未来游戏的新玩法！</p>
+            <div class="project-buttons">
+                <button class="btn btn-primary" onclick="event.stopPropagation(); openInViewer('tetris', 'Tetris.html', '🎮 手势俄罗斯方块')">体验项目</button>
+                <a href="Tetris.html" target="_blank" class="btn btn-secondary" onclick="event.stopPropagation()">新窗口</a>
+            </div>
+        </div>
+
+        <div class="project-card" onclick="openInViewer('solar', 'http://localhost:6660', '🪐 3D太阳系漫游')">
+            <div class="project-preview">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Crect fill='%23020617' width='800' height='600'/%3E%3Ccircle cx='400' cy='300' r='60' fill='%23f59e0b'/%3E%3Ccircle cx='400' cy='300' r='80' fill='none' stroke='%23475569' stroke-width='1'/%3E%3Ccircle cx='500' cy='300' r='8' fill='%2394a3b8'/%3E%3Ccircle cx='400' cy='300' r='130' fill='none' stroke='%23475569' stroke-width='1'/%3E%3Ccircle cx='530' cy='300' r='12' fill='%23ef4444'/%3E%3Ctext x='400' y='550' font-family='Arial' font-size='20' text-anchor='middle' fill='%2306b6d4'%3EThree.js + AI Bot%3C/text%3E%3C/svg%3E" alt="太阳系">
+            </div>
+            <h3 class="project-title">🪐 3D太阳系漫游</h3>
+            <p class="project-description">探索我们的太阳系！手势控制缩放旋转，还有AI机器人随时解答你的天文问题。八大行星、小行星带，一次看个够！</p>
+            <div class="project-buttons">
+                <button class="btn btn-primary" onclick="event.stopPropagation(); openInViewer('solar', 'http://localhost:6660', '🪐 3D太阳系漫游')">体验项目</button>
+                <a href="http://localhost:6660" target="_blank" class="btn btn-secondary" onclick="event.stopPropagation()">新窗口</a>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="fullscreenViewer" class="fullscreen-viewer">
+        <div class="viewer-header">
+            <div class="viewer-left">
+                <img src="logo.png" alt="Logo" class="logo-img">
+            </div>
+            <div class="viewer-right">
+                <span class="viewer-project-name" id="viewerProjectName">Project Name</span>
+                <button class="viewer-btn btn-refresh" onclick="refreshViewer()" title="刷新页面">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    <span>刷新</span>
+                </button>
+                <button class="viewer-btn btn-back" onclick="closeViewer()" title="返回主页">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    <span>返回主页</span>
+                </button>
+            </div>
+        </div>
+        <iframe id="viewerFrame" 
+                class="viewer-frame" 
+                src="" 
+                allow="camera *; microphone *; fullscreen *; display-capture *; autoplay *; geolocation *"
+                allowfullscreen>
+        </iframe>
+    </div>
+
+    <script>
+        let currentViewer = null;
+
+        function openInViewer(id, url, title) {
+            const viewer = document.getElementById('fullscreenViewer');
+            const frame = document.getElementById('viewerFrame');
+            const titleEl = document.getElementById('viewerProjectName');
+            
+            frame.src = url;
+            titleEl.textContent = '正在体验项目：' + title;
+            viewer.style.display = 'flex';
+            currentViewer = id;
+            
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewer() {
+            const viewer = document.getElementById('fullscreenViewer');
+            const frame = document.getElementById('viewerFrame');
+            
+            viewer.style.display = 'none';
+            currentViewer = null;
+            
+            document.body.style.overflow = 'auto';
+        }
+
+        function refreshViewer() {
+            const frame = document.getElementById('viewerFrame');
+            frame.contentWindow.location.reload();
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && currentViewer) {
+                closeViewer();
+            }
+        });
+    </script>
+</body>
+</html>
