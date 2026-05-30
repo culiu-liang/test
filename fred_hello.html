@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Accent Text-to-Speech</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-speak {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-speak:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-stop {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-stop:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+        }
+
+        .btn-translate {
+            background: #4ecdc4;
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-translate:hover {
+            background: #45b7af;
+            transform: translateY(-2px);
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .status.speaking {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .voice-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .flag {
+            font-size: 1.5rem;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 500px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            .buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><span class="flag">🇮🇳</span> Indian Accent TTS</h1>
+        <p class="subtitle">Type text and hear it spoken with an Indian accent</p>
+
+        <div class="input-group">
+            <label for="textInput">Enter Your Text:</label>
+            <textarea id="textInput" placeholder="Type or paste your text here...">Hello, welcome to India! This is a test of the text-to-speech system.</textarea>
+        </div>
+
+        <div class="input-group">
+            <label for="voiceSelect">Select Voice:</label>
+            <select id="voiceSelect">
+                <option value="">Loading voices...</option>
+            </select>
+        </div>
+
+        <div class="controls">
+            <div class="control-item">
+                <label for="rate">Speed: <span id="rateValue">1</span></label>
+                <input type="range" id="rate" min="0.5" max="2" value="1" step="0.1">
+            </div>
+            <div class="control-item">
+                <label for="pitch">Pitch: <span id="pitchValue">1</span></label>
+                <input type="range" id="pitch" min="0.5" max="2" value="1" step="0.1">
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn-translate" onclick="translateToHindi()">🔄 Translate to Hindi</button>
+            <button class="btn-speak" onclick="speak()">🔊 Speak</button>
+            <button class="btn-stop" onclick="stop()">⏹ Stop</button>
+        </div>
+
+        <div id="status" class="status" style="display: none;"></div>
+
+        <div class="voice-info">
+            <strong>💡 Note:</strong> Indian accent voices depend on your browser and operating system. 
+            Common options include "Google Hindi", "Microsoft Heera", or other English-India voices. 
+            If no Indian voices appear, try Chrome browser on Android or install additional language packs.
+        </div>
+    </div>
+
+    <script>
+        const synth = window.speechSynthesis;
+        const textInput = document.getElementById('textInput');
+        const voiceSelect = document.getElementById('voiceSelect');
+        const rateInput = document.getElementById('rate');
+        const pitchInput = document.getElementById('pitch');
+        const rateValue = document.getElementById('rateValue');
+        const pitchValue = document.getElementById('pitchValue');
+        const statusDiv = document.getElementById('status');
+
+        let voices = [];
+
+        // Load available voices
+        function loadVoices() {
+            voices = synth.getVoices();
+            voiceSelect.innerHTML = '';
+
+            // Filter and prioritize Indian voices
+            const indianVoices = voices.filter(function(voice) {
+                return voice.lang.includes('IN') || 
+                       voice.lang.includes('hi') || 
+                       voice.lang.includes('en-IN') ||
+                       voice.name.toLowerCase().includes('india') ||
+                       voice.name.toLowerCase().includes('hindi');
+            });
+
+            const otherVoices = voices.filter(function(voice) {
+                return !voice.lang.includes('IN') && 
+                       !voice.lang.includes('hi') &&
+                       !voice.name.toLowerCase().includes('india');
+            });
+
+            // Add Indian voices first
+            indianVoices.forEach(function(voice) {
+                const option = document.createElement('option');
+                option.value = voice.name;
+                option.textContent = '🇮🇳 ' + voice.name + ' (' + voice.lang + ')';
+                voiceSelect.appendChild(option);
+            });
+
+            // Add separator if there are Indian voices
+            if (indianVoices.length > 0 && otherVoices.length > 0) {
+                const separator = document.createElement('option');
+                separator.textContent = '── Other Voices ──';
+                separator.disabled = true;
+                voiceSelect.appendChild(separator);
+            }
+
+            // Add other voices
+            otherVoices.forEach(function(voice) {
+                const option = document.createElement('option');
+                option.value = voice.name;
+                option.textContent = voice.name + ' (' + voice.lang + ')';
+                voiceSelect.appendChild(option);
+            });
+
+            if (voices.length === 0) {
+                const option = document.createElement('option');
+                option.textContent = 'No voices available';
+                voiceSelect.appendChild(option);
+            }
+        }
+
+        // Load voices when available
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+        
+        // Load voices after a short delay (some browsers need this)
+        setTimeout(loadVoices, 100);
+
+        // Update slider values
+        rateInput.addEventListener('input', function() {
+            rateValue.textContent = rateInput.value;
+        });
+
+        pitchInput.addEventListener('input', function() {
+            pitchValue.textContent = pitchInput.value;
+        });
+
+        // Speak function
+        function speak() {
+            if (synth.speaking) {
+                synth.cancel();
+            }
+
+            const text = textInput.value.trim();
+            if (text === '') {
+                showStatus('Please enter some text!', 'error');
+                return;
+            }
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            
+            // Set selected voice
+            const selectedVoice = voiceSelect.value;
+            if (selectedVoice) {
+                const voice = voices.find(function(v) {
+                    return v.name === selectedVoice;
+                });
+                if (voice) {
+                    utterance.voice = voice;
+                }
+            }
+
+            utterance.rate = parseFloat(rateInput.value);
+            utterance.pitch = parseFloat(pitchInput.value);
+
+            utterance.onstart = function() {
+                showStatus('🔊 Speaking...', 'speaking');
+            };
+
+            utterance.onend = function() {
+                hideStatus();
+            };
+
+            utterance.onerror = function(event) {
+                showStatus('❌ Error: ' + event.error, 'error');
+            };
+
+            synth.speak(utterance);
+        }
+
+        // Stop function
+        function stop() {
+            if (synth.speaking) {
+                synth.cancel();
+                showStatus('⏹ Stopped', 'speaking');
+                setTimeout(hideStatus, 2000);
+            }
+        }
+
+        // Translation function (demo)
+        function translateToHindi() {
+            const text = textInput.value.trim();
+            if (text === '') {
+                showStatus('Please enter some text to translate!', 'error');
+                return;
+            }
+
+            showStatus('🔄 Looking for Hindi voice...', 'speaking');
+
+            // Try to find a Hindi voice
+            const hindiVoice = voices.find(function(voice) {
+                return voice.lang.includes('hi') || 
+                       voice.name.toLowerCase().includes('hindi');
+            });
+            
+            if (hindiVoice) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.voice = hindiVoice;
+                utterance.rate = parseFloat(rateInput.value);
+                utterance.pitch = parseFloat(pitchInput.value);
+                
+                utterance.onstart = function() {
+                    showStatus('🔊 Speaking in Hindi...', 'speaking');
+                };
+                
+                utterance.onend = function() {
+                    hideStatus();
+                };
+                
+                synth.speak(utterance);
+            } else {
+                showStatus('⚠️ No Hindi voice found. Try installing Hindi language pack.', 'error');
+            }
+        }
+
+        // Status display functions
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + type;
+            statusDiv.style.display = 'block';
+        }
+
+        function hideStatus() {
+            statusDiv.style.display = 'none';
+        }
+
+        // Close status after 5 seconds for errors
+        setInterval(function() {
+            if (statusDiv.classList.contains('error') && !synth.speaking) {
+                hideStatus();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
